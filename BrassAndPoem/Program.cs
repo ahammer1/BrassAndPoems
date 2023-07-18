@@ -30,7 +30,7 @@ public class ProgramMain
 
         string? choice = null;
         //implement your loop here
-        while (choice != "1")
+        while (choice != "5")
         {
             Console.WriteLine(@"Choose the following options:
             1. Display all products
