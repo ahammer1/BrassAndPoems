@@ -12,18 +12,53 @@ public class ProgramMain
 
     public static void Main()
     {
-        List<Product> products = new List<Product>
+
+        List<ProductType> productType = new()
         {
-            new Product("Tuba", 999.99m, 1),
-            new Product("The Road not Taken", 19.99m, 2),
-            new Product("French Horn", 799.99m, 1),
-            new Product("Shall I compare thee ", 39.99m, 2),
-            new Product("Trumpet", 299.99m, 1)
-        };
-        List<ProductType> productTypes = new List<ProductType>
+             new ProductType()
+            {
+             Title = "Brass",
+                 Id = 1
+            },
+            new ProductType()
+            {
+            Title = "Poem",
+            Id = 2
+            }
+         };
+
+        List<Product> products = new()
         {
-            new ProductType("Brass", 1),
-            new ProductType("Poem", 2)
+            new Product()
+            {
+              Name = "Tuba",
+              Price =  999.99m,
+              ProductTypeId =  1
+            },
+            new Product()
+            {
+              Name = "The Road not Taken",
+              Price =  19.99m,
+              ProductTypeId = 2
+            },
+            new Product()
+            {
+              Name = "French Horn",
+              Price = 799.99m,
+              ProductTypeId = 1
+            },
+            new Product()
+            {
+              Name = "Shall I compare thee ",
+              Price =  39.99m,
+              ProductTypeId = 2
+            },
+            new Product()
+            {
+             Name = "Trumpet",
+             Price =  299.99m,
+             ProductTypeId = 1
+            }
         };
 
 
@@ -37,28 +72,27 @@ public class ProgramMain
         //implement your loop here
         while (choice != "5")
         {
-            Console.WriteLine(@"Choose the following options:
-            1. Display all products
-            2. Delete a product
-            3. Add a new product
-            4. Update product properties
-            5. Exit");
+            DisplayMenu();
             choice = Console.ReadLine();
 
             if (choice == "1")
             {
+                DisplayAllProducts(products, productType);
                 Console.WriteLine("Display all products");
             }
             else if (choice == "2")
             {
+                DeleteProduct(products, productType);
                 Console.WriteLine("Delete a product");
             }
             else if (choice == "3")
             {
+                AddProduct(products, productType);
                 Console.WriteLine("Add a new product");
             }
             else if (choice == "4")
             {
+                UpdateProduct(products, productType);
                 Console.WriteLine("Update product properties");
             }
             else if (choice == "5")
@@ -70,51 +104,59 @@ public class ProgramMain
                 Console.WriteLine("Do Better");
             }
         }
-    
-            void DisplayAllProducts(List<Product> products, List<ProductType> productTypes)
+        void DisplayMenu()
+        {
+            Console.WriteLine(@"
+                1. Display all products
+                2. Delete a product
+                3. Add a new product
+                4. Update product properties
+                5. Exit");
+
+        }
+
+        static void DisplayAllProducts(List<Product> products, List<ProductType> productTypes)
+        {
+            // Iterate over the products and display each product's name, price, and product type title
+            for (int i = 0; i < products.Count; i++)
             {
-                // Iterate over the products and display each product's name, price, and product type title
-                for (int i = 0; i < products.Count; i++)
-                {
-                    Product product = products[i];
-                    string productTypeName = GetProductTypeName(product.ProductTypeId);
-                    Console.WriteLine($"{i + 1}. {product.Name} - ${product.Price} - {productTypeName}");
-                }
+                Product product = products[i];
+                string productTypeName = GetProductTypeName(product.ProductTypeId, productTypes);
+                Console.WriteLine($"{i + 1}. {product.Name} - ${product.Price} - {productTypeName}");
+            }
+        }
+
+        static string GetProductTypeName(int productTypeId, List<ProductType> productTypes)
+        {
+            ProductType productType = productTypes.FirstOrDefault(pt => pt.Id == productTypeId);
+            return productType != null ? productType.Name : "Unknown Product Type";
+        }
+
+        static void DeleteProduct(List<Product> products, List<ProductType> productTypes)
+        {
+            DisplayAllProducts(products, productTypes);
+
+            if (products.Count == 0)
+            {
+                Console.WriteLine("No products to delete.");
+                return;
             }
 
-             string GetProductTypeName(int productTypeId)
+            Console.Write("Enter the index of the product you want to delete: ");
+            if (int.TryParse(Console.ReadLine(), out int indexToDelete) && indexToDelete >= 1 && indexToDelete <= products.Count)
             {
-                ProductType productType = productTypes.FirstOrDefault(pt => pt.Id == productTypeId);
-                return productType != null ? productType.Name : "Unknown Product Type";
+                Product productToDelete = products[indexToDelete - 1];
+                products.Remove(productToDelete);
+                Console.WriteLine("Product deleted successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Invalid index. Product deletion canceled.");
             }
         }
 
-        void DeleteProduct(List<Product> products, List<ProductType> productTypes)
-        {
-                DisplayAllProducts(products, productTypes);
 
-        if (products.Count == 0)
-        {
-            Console.WriteLine("No products to delete.");
-            return;
-        }
-
-        Console.Write("Enter the index of the product you want to delete: ");
-        if (int.TryParse(Console.ReadLine(), out int indexToDelete) && indexToDelete >= 1 && indexToDelete <= products.Count)
-        {
-            Product productToDelete = products[indexToDelete - 1];
-            products.Remove(productToDelete);
-            Console.WriteLine("Product deleted successfully.");
-        }
-        else
-        {
-            Console.WriteLine("Invalid index. Product deletion canceled.");
-        }
-    }
-
-
-        void AddProduct(List<Product> products, List<ProductType> productTypes)
-        {
+        static void AddProduct(List<Product> products, List<ProductType> productTypes)
         {
             Console.Write("Enter the name of the new product: ");
             string productName = Console.ReadLine();
@@ -128,7 +170,7 @@ public class ProgramMain
             }
 
             Console.WriteLine("Product Types:");
-            DisplayProductTypes();
+            DisplayProductTypes(products, productTypes);
 
             int productTypeId;
             Console.Write("Enter the product type ID for the new product: ");
@@ -138,68 +180,72 @@ public class ProgramMain
                 Console.Write("Enter the product type ID for the new product: ");
             }
 
-            Product newProduct = new Product(productName, productPrice, productTypeId);
+            Product newProduct = new Product()
+            {
+                Name = productName,
+                Price = productPrice,
+                ProductTypeId = productTypeId
+            };
             products.Add(newProduct);
 
             Console.WriteLine("New product added successfully.");
         }
-            void DisplayProductTypes()
+        static void DisplayProductTypes(List<Product> products, List<ProductType> productTypes)
         {
             foreach (ProductType productType in productTypes)
             {
                 Console.WriteLine($"ID: {productType.Id} - {productType.Name}");
             }
         }
+
+        static void UpdateProduct(List<Product> products, List<ProductType> productTypes)
+        {
+            DisplayAllProducts(products, productTypes);
+
+            if (products.Count == 0)
+            {
+                Console.WriteLine("No products to update.");
+                return;
+            }
+
+            Console.Write("Enter the index of the product you want to update: ");
+            if (int.TryParse(Console.ReadLine(), out int indexToUpdate) && indexToUpdate >= 1 && indexToUpdate <= products.Count)
+            {
+                Product productToUpdate = products[indexToUpdate - 1];
+
+                Console.Write($"Enter the updated name for {productToUpdate.Name} (press enter to leave unchanged): ");
+                string updatedName = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(updatedName))
+                {
+                    productToUpdate.Name = updatedName;
+                }
+
+                Console.Write($"Enter the updated price for {productToUpdate.Name} (press enter to leave unchanged): ");
+                string priceInput = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(priceInput) && decimal.TryParse(priceInput, out decimal updatedPrice) && updatedPrice > 0)
+                {
+                    productToUpdate.Price = updatedPrice;
+                }
+
+                Console.WriteLine("Product Types:");
+                DisplayProductTypes(products, productTypes);
+
+                Console.Write($"Enter the updated product type ID for {productToUpdate.Name} (press enter to leave unchanged): ");
+                string productTypeInput = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(productTypeInput) && int.TryParse(productTypeInput, out int updatedProductTypeId) && productTypes.Any(pt => pt.Id == updatedProductTypeId))
+                {
+                    productToUpdate.ProductTypeId = updatedProductTypeId;
+                }
+
+                Console.WriteLine("Product updated successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Invalid index. Product update canceled.");
+            }
+        }
     }
-
-           void UpdateProduct(List<Product> products, List<ProductType> productTypes)
-    {
-        DisplayAllProducts(products, productTypes);
-
-        if (products.Count == 0)
-        {
-            Console.WriteLine("No products to update.");
-            return;
-        }
-
-        Console.Write("Enter the index of the product you want to update: ");
-        if (int.TryParse(Console.ReadLine(), out int indexToUpdate) && indexToUpdate >= 1 && indexToUpdate <= products.Count)
-        {
-            Product productToUpdate = products[indexToUpdate - 1];
-
-            Console.Write($"Enter the updated name for {productToUpdate.Name} (press enter to leave unchanged): ");
-            string updatedName = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(updatedName))
-            {
-                productToUpdate.Name = updatedName;
-            }
-
-            Console.Write($"Enter the updated price for {productToUpdate.Name} (press enter to leave unchanged): ");
-            string priceInput = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(priceInput) && decimal.TryParse(priceInput, out decimal updatedPrice) && updatedPrice > 0)
-            {
-                productToUpdate.Price = updatedPrice;
-            }
-
-            Console.WriteLine("Product Types:");
-            DisplayProductTypes();
-
-            Console.Write($"Enter the updated product type ID for {productToUpdate.Name} (press enter to leave unchanged): ");
-            string productTypeInput = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(productTypeInput) && int.TryParse(productTypeInput, out int updatedProductTypeId) && productTypes.Any(pt => pt.Id == updatedProductTypeId))
-            {
-                productToUpdate.ProductTypeId = updatedProductTypeId;
-            }
-
-            Console.WriteLine("Product updated successfully.");
-        }
-        else
-        {
-            Console.WriteLine("Invalid index. Product update canceled.");
-        }
-    }
-
-}
 
     // don't move or change this!
     public partial class Program { }
+}

@@ -6,9 +6,4 @@ public class ProductType
     public int Id { get; set; }
     public string Name { get; internal set; }
 
-    public ProductType(string title, int id)
-    {
-        Title = title;
-        Id = id;
-    }
 }
