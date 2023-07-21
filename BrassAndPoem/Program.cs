@@ -122,7 +122,7 @@ public class ProgramMain
             {
                 Product product = products[i];
                 string productTypeName = GetProductTypeName(product.ProductTypeId, productTypes);
-                Console.WriteLine($"{i + 1}. {product.Name} - ${product.Price} - {productTypeName}");
+                Console.WriteLine($"{i + 1}. {product.Name} - ${product.Price} - {product.ProductTypeId}");
             }
         }
 
